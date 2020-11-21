@@ -1,61 +1,72 @@
+const API = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses';
+
 class ProductsList {
-    constructor(container = '.products') {
+    constructor(container = '.products', text_button = 'добавить в корзину') {
         this.container = container;
-        this.goods = [];//массив товаров
+        this.text_button = text_button;
+        this.goods = [];
     }
-    _fetchProducts() {
-        this.goods = [
-            { id: 1, title: 'Notebook', price: 2000 },
-            { id: 2, title: 'Mouse', price: 20 },
-            { id: 3, title: 'Keyboard', price: 200 },
-            { id: 4, title: 'Gamepad', price: 50 },
-        ];
+    _getProducts() {
+        return fetch(`${API}/catalogData.json`)
+            .then(result => result.json())
+            .then(data => {
+                this.goods = [...data];
+                this.render()
+            })
+            .catch(error => {
+                console.log(error);
+            })
     }
+
 
     render() {
         const block = document.querySelector(this.container);
         for (let product of this.goods) {
             const productObject = new ProductItem(product);
-            block.insertAdjacentHTML('beforeend', productObject.render());
+            block.insertAdjacentHTML('beforeend', productObject.render(this.text_button));
         }
     }
 }
 
 class ProductItem {
     constructor(product, img = 'https://placehold.it/200x150') {
-        this.title = product.title;
+        this.title = product.product_name;
         this.price = product.price;
-        this.id = product.id;
+        this.id = product.id_product;
         this.img = img;
     }
-    render() {
+    render(txt) {
         return `<div class="product-item">
                 <img src="${this.img}">
                 <h3>${this.title}</h3>
                 <p>${this.price}</p>
-                <button class="buy-btn">Купить</button>
+                <button class="buy-btn">${txt}</button>
             </div>`
     }
 }
 
 let list = new ProductsList();
-list._fetchProducts();
+list._getProducts();
 list.render();
 
 class CartList extends ProductsList { //наследуем список товаров в корзине от ProductsList
-    constructor(container = '.cart-list') {
-        super(container);
+    constructor(container = '.cart', text_button = 'удалить из корзины') {
+        super(container, text_button);
     }
 
-
-
-
+    _getProductsToCart() {
+        return fetch(`API/getBasket.json`)
+            .then(res => res.json())
+            .then(data => {
+                this.goods = [...data.contents];
+                this.render()
+            })
+            .catch(err => console.log(err))
+    }
     addToCart(CartItem) { // добавление товара (типа CartItem) в корзину
         //если такого товара еще нет в корзине - добавляем его, если есть - изменяем свойство amount методом changeAmount
         this.goods.push(CartItem);
         //в массиве goods теперь будут лежать не объекты product, а объекты 
-
-
     };
 
     deleteFromCart(CartItem) { //удаление товара из корзины
@@ -67,7 +78,7 @@ class CartList extends ProductsList { //наследуем список това
         for (let prod of this.goods) {
             sum += prod.price * prod.amount;
         }
-        return `суммарная цена ${sum}`;
+        return sum;
     };
 }
 
@@ -82,7 +93,7 @@ class CartItem extends ProductItem {
 }
 
 let CartList_test = new CartList();
-CartList_test.addToCart({ id: 1, title: 'Notebook', price: 2000, img: 'https://placehold.it/200x150', amount: 1 });
-CartList_test.addToCart({ id: 4, title: 'Gamepad', price: 50, img: 'https://placehold.it/200x150', amount: 2 });
-
-alert(CartList_test.calcSum())
+/* CartList_test.addToCart({ id: 1, title: 'Notebook', price: 2000, img: 'https://placehold.it/200x150', amount: 1 });
+CartList_test.addToCart({ id: 4, title: 'Gamepad', price: 50, img: 'https://placehold.it/200x150', amount: 2 }); */
+CartList_test._getProducts();
+CartList_test.render();
