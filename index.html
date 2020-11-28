@@ -9,21 +9,37 @@
 </head>
 
 <body>
-    <header>
-        <div class="logo"><a href="index.html">E-shop</a></div>
-        <!--  <a class="btn-cart" href="Cart.html">Корзина</a> -->
-        <button class="btn-class">Корзина</button>
-    </header>
-    <main>
-        <div class="products">
-
-        </div>
-        <p>Содержимое корзины</p>
-        <div class="cart">
-
-        </div>
-    </main>
-
+    <div id="app">
+        <header>
+            <div class="logo">E-shop</div>
+            <div class="cart">
+                <div class="search-form">
+                    <input class="search-field" v-model="searchLine">
+                    <button @click="FilterGoods()" class="btn-search">найти</button>
+                </div>
+                <button @click="isVisibleCart=!isVisibleCart" class="btn-cart" type="button">Корзина</button>
+                <div v-if="!isVisibleCart" class="cart-block invisible"></div>
+                <div v-else="isVisibleCart&cartProducts.length===0" class="cart-block visible">Данных нет</div>
+            </div>
+        </header>
+        <main>
+            <div class="products">
+                <div v-if="visibleProducts.length===0" class="product-item">
+                    <h3>Данных нет</h3>
+                </div>
+                <div v-if="visibleProducts.length>0" class="product-item" v-for="product of visibleProducts"
+                    :key="product.id_product">
+                    <img :src="imgCatalog" alt="Some img">
+                    <div class="desc">
+                        <h3>{{product.product_name}}</h3>
+                        <p>{{product.price}} $</p>
+                        <button class="buy-btn" @click="addProduct(product)">Купить</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="js/vue.js"></script>
     <script src="js/main.js"></script>
 </body>
 
