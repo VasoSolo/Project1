@@ -1,41 +1,61 @@
+//Отправляйте свои данные с помощью $emit в верхний компонент, а вниз с помощью props
 const API = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses';
 
 const app = new Vue({
-    el: "#app",
+    el: '#app',
     data: {
-        catalogUrl: '/catalogData.json',
-        allProducts: [],
-        visibleProducts: [],
-        imgCatalog: 'https://placehold.it/200x150',
         userSearch: '',
-        isVisibleCart: false,
-        searchLine: "",
-        cartProducts: [],
+        showCart: false,
+        catalogUrl: '/catalogData.json',
+        cartUrl: '/getBasket.json',
+        cartItems: [],
+        filtered: [],
+        imgCart: 'https://placehold.it/50x100',
+        products: [],
+        imgProduct: 'https://placehold.it/200x150'
     },
     methods: {
         getJson(url) {
             return fetch(url)
                 .then(result => result.json())
-                .catch(error => {
-                    console.log(error);
-                })
+                .catch(error => console.log(error))
         },
-        addProduct(product) {
-            console.log(product.id_product);
-        },
-        FilterGoods() {
-            const regexp = new RegExp(this.searchLine, 'i');
-            this.visibleProducts = this.allProducts.filter(product => regexp.test(product.product_name));
-        }
+        addProduct(item) {
+            let find = this.cartItems.find(el => el.id_product === item.id_product);
+            if (find) {
+                find.quantity++;
+            } else {
+                const prod = Object.assign({ quantity: 1 }, item);
+                this.cartItems.push(prod)
+            }
 
+        },
+        remove(item) {
+            if (item.quantity > 1) {
+                item.quantity--;
+            } else {
+                this.cartItems.splice(this.cartItems.indexOf(item), 1);
+            }
+        },
+        filter(txt) {
+            let regexp = new RegExp(txt, 'i');
+            this.filtered = this.products.filter(el => regexp.test(el.product_name));
+        }
     },
     mounted() {
+        this.getJson(`${API + this.cartUrl}`)
+            .then(data => {
+                for (let item of data.contents) {
+                    this.$data.cartItems.push(item);
+                }
+            });
         this.getJson(`${API + this.catalogUrl}`)
             .then(data => {
-                for (let el of data) {
-                    this.allProducts.push(el);
+                for (let item of data) {
+                    this.$data.products.push(item);
+                    this.$data.filtered.push(item);
                 }
-                this.visibleProducts = this.allProducts;
             });
     }
-})
+
+});

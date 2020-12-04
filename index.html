@@ -13,33 +13,26 @@
         <header>
             <div class="logo">E-shop</div>
             <div class="cart">
-                <div class="search-form">
-                    <input class="search-field" v-model="searchLine">
-                    <button @click="FilterGoods()" class="btn-search">найти</button>
-                </div>
-                <button @click="isVisibleCart=!isVisibleCart" class="btn-cart" type="button">Корзина</button>
-                <div v-if="!isVisibleCart" class="cart-block invisible"></div>
-                <div v-else="isVisibleCart&cartProducts.length===0" class="cart-block visible">Данных нет</div>
+
+                <myf></myf>
+
+                <button class="btn-cart" type="button" @click="showCart = !showCart">Корзина</button>
+
+                <cart :cart-items="cartItems" :img="imgCart" :visibility="showCart" @remove="remove"></cart>
+
             </div>
         </header>
         <main>
-            <div class="products">
-                <div v-if="visibleProducts.length===0" class="product-item">
-                    <h3>Данных нет</h3>
-                </div>
-                <div v-if="visibleProducts.length>0" class="product-item" v-for="product of visibleProducts"
-                    :key="product.id_product">
-                    <img :src="imgCatalog" alt="Some img">
-                    <div class="desc">
-                        <h3>{{product.product_name}}</h3>
-                        <p>{{product.price}} $</p>
-                        <button class="buy-btn" @click="addProduct(product)">Купить</button>
-                    </div>
-                </div>
-            </div>
+            <products :products="filtered" :img="imgProduct" @add-product="addProduct"></products>
         </main>
     </div>
-    <script src="js/vue.js"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.7.2/js/all.js"
+        integrity="sha384-0pzryjIRos8mFBWMzSSZApWtPl/5++eIfzYmTgBBmXYdhvxPc+XcFEk+zJwDgWbP"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="js/ProductComponent.js"></script>
+    <script src="js/CartComponent.js"></script>
+    <script src="js/FilterComponent.js"></script>
     <script src="js/main.js"></script>
 </body>
 
